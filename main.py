@@ -21,19 +21,6 @@ bot = MyBot(intents)
 
 DATA_FILE = 'inventory_data.json'
 
-
-def load_inventory_data_2():
-            try:
-                with open('inventory_data_2.json', 'r') as file:
-                    return json.load(file)
-            except FileNotFoundError:
-                return {"daily_rbprofit": {}}
-
-        # ฟังก์ชันสำหรับบันทึกข้อมูลไปยังไฟล์ JSON
-def save_inventory_data_2(data):
-            with open('inventory_data_2.json', 'w') as file:
-                json.dump(data, file, indent=4)
-
 def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as f:
@@ -352,140 +339,6 @@ async def sell_report(interaction: discord.Interaction):
     if not interaction.response.is_done():
         await interaction.response.send_message(embed=embed)
 
-# คำนวณกำไรจากการขาย Robux
-        # คำนวณกำไรจากการขาย Robux
-@bot.tree.command(name="rbbuy", description="รับ Robux และคำนวณกำไรจาก Robux")
-async def rbbuy(interaction: discord.Interaction, amount: int, rate: float):
-                    if not is_user_allowed(interaction):
-                        await interaction.response.send_message("คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
-                        return
-
-                    timestamp = get_thailand_time()
-
-                    # คำนวณกำไรจากการรับ Robux
-                    rbprofit = amount / rate
-
-                    # โหลดข้อมูลจากไฟล์ JSON สำหรับ Robux
-                    data_2 = load_inventory_data_2()
-
-                    # ตรวจสอบว่ามี 'daily_rbprofit' หรือไม่ หากไม่มีให้สร้าง
-                    if "daily_rbprofit" not in data_2:
-                        data_2["daily_rbprofit"] = {}
-
-                    # เพิ่มหรืออัพเดตกำไรจากการขาย Robux
-                    date_today = datetime.now().strftime("%Y-%m-%d")
-                    if date_today in data_2["daily_rbprofit"]:
-                        data_2["daily_rbprofit"][date_today] += rbprofit
-                    else:
-                        data_2["daily_rbprofit"][date_today] = rbprofit
-
-                    # Update the Robux balance
-                    if "robux_balance" not in data_2:
-                        data_2["robux_balance"] = 0  # Initial balance if not present
-                    data_2["robux_balance"] += amount  # Add received Robux to balance
-
-                    # บันทึกข้อมูลกลับลงไฟล์ JSON
-                    save_inventory_data_2(data_2)
-
-                    # บันทึกข้อมูลการรับ
-                    log_event("รับ Robux", f"รับ {amount} Robux เรท {rate}", rbprofit, timestamp)
-
-                    log_message = f"🎮 **รับ Robux**\nจำนวน: `{amount} Robux`\nเรท: `{rate}`\nในราคา: `{rbprofit}` บาท\nรับเมื่อ: `{timestamp}`"
-                    await send_log_to_channel(bot, log_message)
-
-                    embed = discord.Embed(
-                        title="รับ Robux",
-                        description=f"รับ {amount} Robux ที่เรท {rate} ราคา {rbprofit} บาท!",
-                        color=discord.Color.green(),
-                    )
-                    embed.set_footer(text=f"รับเมื่อ {timestamp}")
-                    if not interaction.response.is_done():
-                        await interaction.response.send_message(embed=embed)
-
-
-
-@bot.tree.command(name="rbprofit", description="แสดงกำไรจากการขาย Robux")
-async def rbprofit(interaction: discord.Interaction):
-            timestamp = get_thailand_time()
-
-            # โหลดข้อมูลจากไฟล์ JSON สำหรับ Robux
-            data_2 = load_inventory_data_2()
-
-            # ตรวจสอบว่ามี 'daily_rbprofit' หรือไม่ หากไม่มีให้สร้าง
-            if "daily_rbprofit" not in data_2:
-                data_2["daily_rbprofit"] = {}
-
-            total_rbprofit = sum(data_2["daily_rbprofit"].values())
-
-            date_today = datetime.now().strftime("%Y-%m-%d")
-            today_rbprofit = data_2["daily_rbprofit"].get(date_today, 0)
-
-            embed = discord.Embed(
-                title="ข้อมูลกำไรจากการขาย Robux",
-                description=f"กำไรจากการขาย Robux ในวันนี้ ({date_today}): {today_rbprofit} บาท\n"
-                            f"กำไรรวมทั้งหมดจากการขาย Robux: {total_rbprofit} บาท",
-                color=discord.Color.blue(),
-            )
-            embed.set_footer(text=f"ข้อมูลเมื่อ {timestamp}")
-            if not interaction.response.is_done():
-                await interaction.response.send_message(embed=embed)
-
-@bot.tree.command(name="rbsell", description="ขาย Robux และคำนวณกำไรจาก Robux")
-async def rbsell(interaction: discord.Interaction, amount: int, rate: float):
-                    if not is_user_allowed(interaction):
-                        await interaction.response.send_message("คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
-                        return
-
-                    timestamp = get_thailand_time()
-
-                    # Assuming you have a record of buy rates, retrieve the relevant buy rate (this should be implemented).
-                    buy_rate = 50  # Replace with the actual buy rate retrieval logic
-                    if rate < buy_rate:
-                        loss = (buy_rate - rate) * amount
-                        profit_message = f"ขาดทุน: -{loss} บาท"
-                    else:
-                        profit = (rate - buy_rate) * amount
-                        profit_message = f"กำไร: {profit} บาท"
-
-                        profit = amount * rate
-
-                        log_event("ขาย Robux", f"ขาย {amount} Robux ที่เรท {rate}", profit, timestamp)
-
-                    log_message = f"💸 **ขาย Robux**\nจำนวน: `{amount} Robux`\nเรท: `{rate}`\n{profit_message}\nขายเมื่อ: `{timestamp}`"
-                    await send_log_to_channel(bot, log_message)
-
-                    embed = discord.Embed(
-                        title="ขาย Robux",
-                        description=f"ขาย {amount} Robux ที่เรท {rate} {profit_message}",
-                        color=discord.Color.green(),
-                    )
-                    embed.set_footer(text=f"ขายเมื่อ {timestamp}")
-                    if not interaction.response.is_done():
-                        await interaction.response.send_message(embed=embed)
-
-# คำนวณจำนวน Robux ที่มีในสต็อก
-@bot.tree.command(name="rbstock", description="แสดงยอด Robux ที่เหลือ")
-async def rbstock(interaction: discord.Interaction):
-            timestamp = get_thailand_time()
-
-            # โหลดข้อมูลจากไฟล์ JSON สำหรับ Robux
-            data_2 = load_inventory_data_2()
-
-            # ตรวจสอบว่ามี 'robux_balance' หรือไม่
-            if "robux_balance" not in data_2:
-                data_2["robux_balance"] = 0  # If no balance exists, initialize it.
-
-            remaining_rb = data_2["robux_balance"]
-
-            embed = discord.Embed(
-                title="ยอด Robux ที่เหลือ",
-                description=f"ยอด Robux ที่เหลือ: `{remaining_rb}`",
-                color=discord.Color.blue(),
-            )
-            embed.set_footer(text=f"ข้อมูลเมื่อ {timestamp}")
-            if not interaction.response.is_done():
-                await interaction.response.send_message(embed=embed)
-
 
 @bot.tree.command(name="inventory_list", description="แสดงรายการสินค้าที่มี")
 async def inventory_list(interaction: discord.Interaction):
@@ -531,4 +384,4 @@ async def inventory_list(interaction: discord.Interaction):
     if not interaction.response.is_done():
         await interaction.response.send_message(embed=embed)
 
-bot.run('')
+bot.run(os.getenv('TOKEN'))
