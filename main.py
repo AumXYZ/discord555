@@ -284,4 +284,4 @@ async def inventory_list(interaction: discord.Interaction):
 
 server_on()
 
-bot.run('MTMyMjYzODU5NjM4NTAxNzk0Ng.G2spsQ.qj2vM6477yUJmNGHMjrUPUo68AUGOemWxBh3_Q')
+bot.run('MTMyNjAyNTY3OTI5NjQwMTQ5MQ.Gem2Bl.8Uk-oOVmrehR5WKx_d0IvWiUXFHf4etkf6W174')
