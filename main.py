@@ -6,6 +6,7 @@ import json
 import os
 import pytz
 from table2ascii import table2ascii as t2a, PresetStyle
+from myserver import server_on
 
 # กำหนด Intents
 intents = discord.Intents.default()
@@ -280,5 +281,6 @@ async def inventory_list(interaction: discord.Interaction):
         await interaction.response.send_message(embed=embed)
 
 
+server_on()
 
-bot.run('MTMyMjYzODU5NjM4NTAxNzk0Ng.G2spsQ.qj2vM6477yUJmNGHMjrUPUo68AUGOemWxBh3_Q')
+bot.run('TOKEN')
