@@ -283,4 +283,4 @@ async def inventory_list(interaction: discord.Interaction):
 
 server_on()
 
-bot.run('TOKEN')
+bot.run(TOKEN)
