@@ -10,7 +10,7 @@ from table2ascii import table2ascii as t2a, PresetStyle
 intents = discord.Intents.default()
 intents.messages = True
 intents.guilds = True
-ALLOWED_USERS = [852854008602820626, 810222269577953343]
+ALLOWED_USERS = [1112085770904281158, 871833855462617118, 852854008602820626]
     
 class MyBot(discord.Client):
     def __init__(self, intents):
@@ -184,14 +184,17 @@ async def profit(interaction: discord.Interaction):
     date_today = datetime.now().strftime("%Y-%m-%d")
     today_profit = daily_profit.get(date_today, 0)
 
-    profit_arm = today_profit * 0.7
-    profit_ex = today_profit * 0.3  
+    # แก้ไขการคำนวณกำไร
+    profit_knight = today_profit * 0.25  # ไนท์ 25%
+    profit_base = today_profit * 0.25    # เบส 25%
+    profit_ex = today_profit * 0.5       # เอ็กซ์ 50%
 
     embed = discord.Embed(
         title="ข้อมูลกำไร",
         description=f"กำไรในวันนี้ ({date_today}): {today_profit} บาท\n"
-                    f"พี่อาร์ม: {profit_arm} บาท\n"
-                    f"เอ็ก: {profit_ex} บาท\n"
+                    f"ไนท์: {profit_knight} บาท\n"
+                    f"เบส: {profit_base} บาท\n"
+                    f"เอ็กซ์: {profit_ex} บาท\n"
                     f"กำไรรวมทั้งหมด: {total_profit} บาท",
         color=discord.Color.blue(),
     )
@@ -199,20 +202,6 @@ async def profit(interaction: discord.Interaction):
     if not interaction.response.is_done():
         await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="wallet", description="แสดงกระเป๋าสตางค์")
-async def wallet(interaction: discord.Interaction):
-    wallet_address = "LS1TSgMNapSBSrpadKPDnWn4MuwcLRf5dp"
-    timestamp = get_thailand_time()
-
-    embed = discord.Embed(
-        title="กระเป๋าสตางค์",
-        description=f"ที่อยู่กระเป๋า: `{wallet_address}`",
-        color=discord.Color.blue(),
-    )
-    embed.set_footer(text=f"ข้อมูลเมื่อ {timestamp}")
-
-    if not interaction.response.is_done():
-        await interaction.response.send_message(embed=embed)
 
 
 @bot.tree.command(name="buy_report", description="แสดงยอดซื้อและจำนวนเงินค้างอยู่")
